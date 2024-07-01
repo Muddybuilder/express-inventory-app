@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
-</html>
+<%- include('./head') %>
+<h1><%= title %></h1>
+<p>Welcome to <%= title %> shop, a basic Express website.</p>
+<h2>Dynamic content</h2>
+<p>The shop has the following record counts:</p>
+<ul>
+  <li><strong>Category Count: </strong><%= category_count%></li>
+  <li><strong>Total number of products: </strong><%= item_count%></li>
+</ul>
+<%- include('./foot') %>

@@ -3,9 +3,9 @@ const router = express.Router();
 
 // Require controller modules.
 const category_controller = require("../controllers/categoryController");
-const item_controller = require("../controllers/itemController");
+// const item_controller = require("../controllers/itemController");
 
-/// SPECIES ROUTES ///
+/// CATEGORY ROUTES ///
 
 // GET catalog home page.
 router.get("/", category_controller.index);
@@ -27,6 +27,9 @@ router.get("/category/:id/update", category_controller.category_update_get);
 
 // POST request to update species.
 router.post("/category/:id/update", category_controller.category_update_post);
+
+// GET request for one species.
+router.get("/categories", category_controller.category_list);
 
 // GET request for one species.
 router.get("/category/:id", category_controller.category_detail);
