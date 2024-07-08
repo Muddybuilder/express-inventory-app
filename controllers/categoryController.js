@@ -17,7 +17,12 @@ exports.index = asyncHandler(async (req, res, next) => {
 });
 
 exports.category_list = asyncHandler(async (req, res, next) => {
-  res.send("Not Implemented yet!");
+  const allCategories = await Category.find({}, "name items")
+    .sort({ name: 1 })
+    .populate("items")
+    .exec();
+
+  res.render("category_list", { title: "Category List", category_list: allCategories });
 });
 
 exports.category_create_get = asyncHandler(async (req, res, next) => {

@@ -1,0 +1,12 @@
+<%- include('./head') %>
+<h1><%= title %></h1>
+<ul>
+  <% if(category_list.length){ category_list.forEach(function(item){ %>
+  <li>
+    <a href=<%= item.url%>><%= item.name%> </a>
+  </li>
+  <% })} else{ %>
+  <p>There are no items.</p>
+  <% } %>
+</ul>
+<%- include('./foot') %>
