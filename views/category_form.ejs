@@ -4,9 +4,9 @@
 <form method="POST">
     <div class="form-group">
         <label for="name">Category:</label>
-        <input id="name" class="form-control" type="text" placeholder="Engine, Transmission... etc" name="name" required 
-        value=<%= ( undefined === category)? "": category.name %>>
-        
+        <input id="name" class="form-control" type="text" placeholder="Engine, Transmission... etc" name="name" required value=<%= category?.name %>>
+        <label for="desc">Description:</label>
+        <input id="desc" class="form-control" type="text" name="desc" required value="<%= category?.description %>">
         <button class="btn btn-primary" type="submit">Submit</button>
     <% if (errors){%>
         <ul>

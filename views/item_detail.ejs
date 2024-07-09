@@ -1,0 +1,25 @@
+<%- include('./head') %>
+<h1>Item: <%= item.name %></h1>
+<div style="margin-left:20px;margin-top:20px">
+    <p>Description: <%= item.description%></p>
+    <% if (categories.length){ %>
+      <dl>
+          <% categories.forEach(category=> {%>
+          <dt><a href=<%=category.url%>> <%= category.name %></a></dt>
+          <dd><%= category.description%></dd>
+          <% }) %>
+      </dl>
+      <% } else{%>
+          <p>This item has no category.</p>
+          <% }%>
+  
+</div>
+<hr>
+<p>
+    <a href='<%=item.url%>/delete'>Delete item</a>
+</p>
+<p>
+    <a href=<%=item.url+'/update'%>>Update item</a>
+</p>
+
+<%- include('./foot') %>
