@@ -40,9 +40,9 @@ async function categoryCreate(index, name, desc) {
   console.log(`Added genre: ${name}`);
 }
 
-async function ItemCreate(index, categories, name, desc) {
+async function ItemCreate(index, category, name, desc) {
   const item = {
-    categories: categories,
+    category: category,
     name: name,
     description: desc,
   };

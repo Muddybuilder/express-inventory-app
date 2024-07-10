@@ -6,7 +6,7 @@ const asyncHandler = require("express-async-handler");
 exports.item_list = asyncHandler(async (req, res, next) => {
   const allItems = await Item.find({}, "name categories")
     .sort({ name: 1 })
-    .populate("categories")
+    .populate("category")
     .exec();
 
   res.render("item_list", {
@@ -16,21 +16,21 @@ exports.item_list = asyncHandler(async (req, res, next) => {
 });
 
 exports.item_create_get = asyncHandler(async (req, res, next) => {
-  res.render("category_form", {
-    title: "Create Category",
+  res.render("item_form", {
+    title: "Create Item",
     errors: undefined,
-    category: undefined,
+    item: undefined,
   });
 });
 
 exports.item_create_post = [
   // Validate and sanitize the name field.
-  body("name", "Category name must contain at least 2 characters")
+  body("name", "Item name must contain at least 2 characters")
     .trim()
     .isLength({ min: 2 })
     .escape(),
 
-  body("desc", "Category description must contain at least 3 characters")
+  body("desc", "Item description must contain at least 3 characters")
     .trim()
     .isLength({ min: 3 })
     .escape(),
@@ -41,73 +41,74 @@ exports.item_create_post = [
     const errors = validationResult(req);
 
     // Create a genre object with escaped and trimmed data.
-    const category = new Category({
+    const item = new Item({
       name: req.body.name,
       description: req.body.desc,
     });
 
     if (!errors.isEmpty()) {
       // There are errors. Render the form again with sanitized values/error messages.
-      res.render("category_form", {
-        title: "Create Category",
-        category: category,
+      res.render("item_form", {
+        title: "Create Item",
+        item: item,
         errors: errors.array(),
       });
       return;
     } else {
       // Data from form is valid.
-      const cateExists = await Category.findOne({ name: req.body.name })
+      const itemExists = await Item.findOne({ name: req.body.name })
         .collation({ locale: "en", strength: 2 })
         .exec();
-      if (cateExists) {
+      if (itemExists) {
         // Category exists, redirect to its detail page.
-        res.redirect(cateExists.url);
+        res.redirect(itemExists.url);
       } else {
-        await category.save();
+        await item.save();
         // New Category saved. Redirect to Category detail page.
-        res.redirect(category.url);
+        res.redirect(item.url);
       }
     }
   }),
 ];
 
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
-  const [category, items] = await Promise.all([
-    Category.findById(req.params.id).exec(),
-    Item.find({ categories: req.params.id }).exec(),
-  ]);
-  if (category === null) {
-    res.redirect("/catalog/categories");
+  const item = await Item.findById(req.params.id).exec();
+
+  if (item === null) {
+    res.redirect("/catalog/items");
   }
 
-  res.render("category_delete", {
-    title: "Delete Category",
-    category: category,
-    items: items,
+  res.render("item_delete", {
+    title: "Delete Item",
+    item: item,
   });
 });
 
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
-  await Category.findByIdAndDelete(req.body.categoryid);
-  res.redirect("/catalog/categories");
+  await Item.findByIdAndDelete(req.body.itemid);
+  res.redirect("/catalog/items");
 });
 
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.params.id).exec();
-  res.render("category_form", {
-    title: "Update Category",
+  const [item, category] = await Promise.all([
+    Item.findById(req.params.id).populate("category").exec(),
+    Category.find({ items: req.params.id }, "name description"),
+  ]);
+  res.render("item_form", {
+    title: "Update Item",
     errors: undefined,
+    item: item,
     category: category,
   });
 });
 
 exports.item_update_post = [
   // Validate and sanitize the name field.
-  body("name", "Category name must contain at least 2 characters")
+  body("name", "Item name must contain at least 2 characters")
     .trim()
     .isLength({ min: 2 })
     .escape(),
-  body("desc", "Category description must contain at least 3 characters")
+  body("desc", "Item description must contain at least 3 characters")
     .trim()
     .isLength({ min: 3 })
     .escape(),
@@ -116,52 +117,43 @@ exports.item_update_post = [
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request.
     const errors = validationResult(req);
+    // TODO: Make item can have multiple categories
+    const category = await Category.find({name:req.body.cate}).exec();
+    console.log(category)
+
+    if(!category){
+      category = new Category({name:req.body.cate, description:""})
+    }
 
     // Create a genre object with escaped and trimmed data.
-    const category = new Category({
+    const item = new Item({
       name: req.body.name,
       description: req.body.desc,
+      category: category,
       _id: req.params.id,
     });
 
+
+
     if (!errors.isEmpty()) {
       // There are errors. Render the form again with sanitized values/error messages.
-      res.render("category_form", {
-        title: "Update Category",
-        category: category,
+      res.render("item_form", {
+        title: "Update Item",
+        item: item,
         errors: errors.array(),
       });
       return;
     } else {
-      // Data from form is valid.
-      // Check if Genre with same name already exists.
-      const cateExists = await Category.findOne({
-        name: req.body.name,
-        description: req.body.desc,
-      })
-        .collation({ locale: "en", strength: 2 })
-        .exec();
-      if (cateExists) {
-        // Genre exists, redirect to its detail page.
-        res.redirect(cateExists.url);
-      } else {
-        const updatedCate = await Category.findByIdAndUpdate(
-          req.params.id,
-          category,
-          {}
-        );
-        // New genre saved. Redirect to genre detail page.
-        res.redirect(updatedCate.url);
-      }
+      const updatedItem = await Item.findByIdAndUpdate(req.params.id, item, {});
+      console.log(updatedItem);
+      // New item saved. Redirect to item detail page.
+      res.redirect(updatedItem.url);
     }
   }),
 ];
 
 exports.item_detail = asyncHandler(async (req, res, next) => {
-  const [categories, item] = await Promise.all([
-    Category.find({ items: req.params.id }, "name description"),
-    Item.findById(req.params.id).populate("categories").exec(),
-  ]);
+  const item = await Item.findById(req.params.id).populate("category").exec();
 
   if (item === null) {
     // No results.
@@ -173,8 +165,5 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
   res.render("item_detail", {
     title: "Item detail",
     item: item,
-    categories: categories,
   });
 });
-
-// TODO: Finish item controller & views

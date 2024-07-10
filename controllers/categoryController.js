@@ -86,7 +86,7 @@ exports.category_create_post = [
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ categories: req.params.id }).exec(),
+    Item.find({ category: req.params.id }).exec(),
   ]);
   if (category === null) {
     res.redirect("/catalog/categories");
@@ -171,7 +171,7 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
     Category.findById(req.params.id)
     .populate("items")
     .exec(),
-    Item.find({categories:req.params.id},"name description").exec(),
+    Item.find({category:req.params.id},"name description").exec(),
   ]);
 
   if (category === null) {

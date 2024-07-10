@@ -1,0 +1,24 @@
+<%- include('./head') %>
+<h1><%= title %></h1>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="name">Item:</label>
+        <input id="name" class="form-control" type="text"  name="name" required value="<%= item?.name %>">
+        <label for="desc">Description:</label>
+        <input id="desc" class="form-control" type="text" name="desc" required value="<%= item?.description %>">
+        <label for="cate">Category:</label>
+        <input id="cate" class="form-control" type="text" name="cate" required value="<%= item?.category?.name %>">
+
+        <button class="btn btn-primary" type="submit">Submit</button>
+
+    <% if (errors){%>
+        <ul>
+            <% errors.forEach(error=>{ %>
+                <li><%= error.msg %></li>
+            <% })%>
+        </ul>
+        <%}%>
+    </div>
+</form>
+<%- include('./foot') %>

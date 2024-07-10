@@ -12,7 +12,7 @@ const ItemSchema = new Schema({
         type:String,
         required:true
     },
-    categories:[{type:Schema.Types.ObjectId, ref:"Category"}]
+    category:{type:Schema.Types.ObjectId, ref:"Category"}
 
 });
 
