@@ -90,19 +90,42 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 });
 
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-  const [item, category] = await Promise.all([
-    Item.findById(req.params.id).populate("category").exec(),
-    Category.find({ items: req.params.id }, "name description"),
+  const [item, allCategory] = await Promise.all([
+    Item.findById(req.params.id).exec(),
+    Category.find().sort({name:1}).exec()
   ]);
+
+  if (item === null){
+    const err = new Error("Item not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  allCategory.forEach((cate) => {
+    console.log(item.category)
+    if (item.category.includes(cate._id)){
+      cate.checked = "true";
+      console.log(cate._id)
+    }
+  });
+
   res.render("item_form", {
     title: "Update Item",
     errors: undefined,
     item: item,
-    category: category,
+    category: allCategory,
   });
 });
 
 exports.item_update_post = [
+  (req, res, next) => {
+    if (!Array.isArray(req.body.cate)) {
+      req.body.cate =
+        typeof req.body.cate === "undefined" ? [] : [req.body.cate];
+    }
+    next();
+  },
+
   // Validate and sanitize the name field.
   body("name", "Item name must contain at least 2 characters")
     .trim()
@@ -118,28 +141,28 @@ exports.item_update_post = [
     // Extract the validation errors from a request.
     const errors = validationResult(req);
     // TODO: Make item can have multiple categories
-    const category = await Category.find({name:req.body.cate}).exec();
-    console.log(category)
-
-    if(!category){
-      category = new Category({name:req.body.cate, description:""})
-    }
 
     // Create a genre object with escaped and trimmed data.
     const item = new Item({
       name: req.body.name,
       description: req.body.desc,
-      category: category,
+      category: req.body.cate,
       _id: req.params.id,
     });
 
-
-
     if (!errors.isEmpty()) {
       // There are errors. Render the form again with sanitized values/error messages.
+      const allCategory = await Category.find().sort({name:1}).exec()
+      for (const category of allCategory) {
+        if (item.category.indexOf(genre._id) > -1) {
+          category.checked = "true";
+        }
+      }
+
       res.render("item_form", {
         title: "Update Item",
         item: item,
+        category:allCategory,
         errors: errors.array(),
       });
       return;
@@ -154,7 +177,7 @@ exports.item_update_post = [
 
 exports.item_detail = asyncHandler(async (req, res, next) => {
   const item = await Item.findById(req.params.id).populate("category").exec();
-
+  
   if (item === null) {
     // No results.
     const err = new Error("items not found");

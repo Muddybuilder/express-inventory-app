@@ -5,12 +5,28 @@
     <div class="form-group">
         <label for="name">Item:</label>
         <input id="name" class="form-control" type="text"  name="name" required value="<%= item?.name %>">
+    </div>
+    <div class="form-group">
+
         <label for="desc">Description:</label>
         <input id="desc" class="form-control" type="text" name="desc" required value="<%= item?.description %>">
+    </div>
+    <div class="form-group">
         <label for="cate">Category:</label>
-        <input id="cate" class="form-control" type="text" name="cate" required value="<%= item?.category?.name %>">
+        <% category.forEach(cate=>{ %>
+            <div style="display: inline; padding-right:10px;">
+                <%if (cate.checked){%>
+                    <input class="checkbox-input" type="checkbox" name="cate" id=<%= cate._id%> value=<%= cate._id%> checked>
+                <%}else{%>
+                    <input class="checkbox-input" type="checkbox" name="cate" id=<%= cate._id%> value=<%= cate._id%>>
+                    <%}%>
+                <label for="cate._id"><%= cate.name%></label>
+            </div>
+        <% }) %>
 
-        <button class="btn btn-primary" type="submit">Submit</button>
+
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
 
     <% if (errors){%>
         <ul>
@@ -19,6 +35,5 @@
             <% })%>
         </ul>
         <%}%>
-    </div>
 </form>
 <%- include('./foot') %>

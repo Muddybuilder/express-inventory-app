@@ -34,10 +34,10 @@ async function main() {
 // genre[0] will always be the Fantasy genre, regardless of the order
 // in which the elements of promise.all's argument complete.
 async function categoryCreate(index, name, desc) {
-  const category = new Category({ name: name, description: desc });
+  const category = new Category({ name: name, description: desc, items:[] });
   await category.save();
   categories[index] = category;
-  console.log(`Added genre: ${name}`);
+  console.log(`Added category: ${name}`);
 }
 
 async function ItemCreate(index, category, name, desc) {
@@ -66,9 +66,9 @@ async function createCate() {
 async function createItem() {
   console.log("Adding items");
   await Promise.all([
-    ItemCreate(0, categories[0], "Piston ring set", "4pcs ring set for piston"),
-    ItemCreate(1, categories[0], "Engine mount", "Front top engine mount"),
-    ItemCreate(2, categories[1], "134a refrigerant", "8oz can"),
-    ItemCreate(3, categories[2], "Custom aluminum wheel set", "4pcs wheels"),
+    ItemCreate(0, [], "Piston ring set", "4pcs ring set for piston"),
+    ItemCreate(1, [], "Engine mount", "Front top engine mount"),
+    ItemCreate(2, [], "134a refrigerant", "8oz can"),
+    ItemCreate(3, [], "Custom aluminum wheel set", "4pcs wheels"),
   ]);
 }
